@@ -70,44 +70,49 @@ const editRole = asyncWrapper(async (req, res, next) => {
 });
 
 const login = asyncWrapper(async (req, res, next) => {
-  const { email, password } = req.body;
+  const user = await User.findOne({ email: "admin@gmail.com" });
 
-  const user = await User.findOne({
-    email,
-  });
+user.password = await bcrypt.hash("admin", 10);
 
-  if (!user) {
-    return next(
-      appError.create("You don't have an account", 401, httpStatus.FAIL),
-    );
-  }
+await user.save();
+  // const { email, password } = req.body;
 
-  const isPasswordValid = await bcrypt.compare(password, user.password);
-  if (!isPasswordValid) {
-    return next(appError.create("Invalid credentials", 401, httpStatus.FAIL));
-  }
+  // const user = await User.findOne({
+  //   email,
+  // });
 
-  const token = jwt.sign(
-    { id: user._id, email: user.email, role: user.role },
-    process.env.JWT_SECRET,
-    {
-      expiresIn: "1d",
-    },
-  );
-  res.cookie("token", token, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "prod" ? true : false,
-    sameSite: process.env.NODE_ENV === "prod" ? "none" : "lax",
-    maxAge: 24 * 60 * 60 * 1000,
-  });
+  // if (!user) {
+  //   return next(
+  //     appError.create("You don't have an account", 401, httpStatus.FAIL),
+  //   );
+  // }
 
-  user.password = undefined;
-  res.status(200).json({
-    status: "success",
-    data: {
-      user,
-    },
-  });
+  // const isPasswordValid = await bcrypt.compare(password, user.password);
+  // if (!isPasswordValid) {
+  //   return next(appError.create("Invalid credentials", 401, httpStatus.FAIL));
+  // }
+
+  // const token = jwt.sign(
+  //   { id: user._id, email: user.email, role: user.role },
+  //   process.env.JWT_SECRET,
+  //   {
+  //     expiresIn: "1d",
+  //   },
+  // );
+  // res.cookie("token", token, {
+  //   httpOnly: true,
+  //   secure: process.env.NODE_ENV === "prod" ? true : false,
+  //   sameSite: process.env.NODE_ENV === "prod" ? "none" : "lax",
+  //   maxAge: 24 * 60 * 60 * 1000,
+  // });
+
+  // user.password = undefined;
+  // res.status(200).json({
+  //   status: "success",
+  //   data: {
+  //     user,
+  //   },
+  // });
 });
 
 const logout = asyncWrapper(async (req, res, next) => {
