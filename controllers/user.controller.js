@@ -22,7 +22,7 @@ const register = asyncWrapper(async (req, res, next) => {
     email,
 
     password: hashedPassword,
-    role,
+    role: "admin",
   });
 
   await user.save();
